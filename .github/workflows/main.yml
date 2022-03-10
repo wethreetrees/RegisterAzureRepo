@@ -13,7 +13,6 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: Amadevus/pwsh-script@v2
-        id: publish-script
-        with:
-          script: Publish-Script -Path Register-AzureArtifactRepo.ps1 -NuGetApiKey ${{ secrets.NUGET_API_KEY }}
+      - name: publish-script
+        shell: pwsh
+        run: Publish-Script -Path ./Register-AzureArtifactRepo.ps1 -NuGetApiKey ${{ secrets.NUGET_API_KEY }}
