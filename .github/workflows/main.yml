@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish PowerShell Script
+        uses: jcwillox/action-publish-powershell-script@v1.0.1
+        with:
+          path: Register-AzureArtifactRepo.ps1
+          nuget_api_key: ${{ secrets.NUGET_API_KEY }}
