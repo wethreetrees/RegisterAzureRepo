@@ -16,5 +16,6 @@ jobs:
       - name: Publish PowerShell Script
         uses: jcwillox/action-publish-powershell-script@v1.0.1
         with:
+          name: Register-AzureArtifactRepo.ps1
           path: Register-AzureArtifactRepo.ps1
           nuget_api_key: ${{ secrets.NUGET_API_KEY }}
