@@ -1,7 +1,7 @@
 
 <#PSScriptInfo
 
-.VERSION 1.0.0
+.VERSION 1.0.1
 
 .GUID 031b94ea-9b95-4886-afcc-fc59299c7747
 
@@ -82,8 +82,13 @@ $credential = $Host.UI.PromptForCredential(
 $repoName = (Get-PSRepository -Verbose:$false | Where-Object { $_.SourceLocation -eq $Url }).Name
 
 if ($repoName) {
-    Get-PackageSource -Name $repoName | Unregister-PackageSource
-    Get-PackageSource -Location $Url | Where-Object { $_.IsRegistered } | Unregister-PackageSource
+    if ($sourcesMatchingName = Get-PackageSource -Name $repoName) {
+        $sourcesMatchingName | Unregister-PackageSource
+    }
+
+    if ($sourcesMatchingUrl = Get-PackageSource -Location $Url | Where-Object { $_.IsRegistered }) {
+        $sourcesMatchingUrl | Unregister-PackageSource
+    }
 } else {
     $repoName = [regex]::Matches($Url, '(?<=.*?_packaging/).*?(?=/nuget/v2)').Value -join '_'
 }
