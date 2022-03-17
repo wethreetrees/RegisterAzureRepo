@@ -1,7 +1,7 @@
 
 <#PSScriptInfo
 
-.VERSION 1.0.1
+.VERSION 1.0.2
 
 .GUID 031b94ea-9b95-4886-afcc-fc59299c7747
 
@@ -72,12 +72,17 @@ Param(
     [string]$PatToken
 )
 
-$credential = $Host.UI.PromptForCredential(
-    "A PAT token is required to register the Azure Artifact Repository",
-    "Enter your Azure PAT token",
-    "AzurePatToken",
-    $null
-)
+if (-not $PatToken) {
+    $credential = $Host.UI.PromptForCredential(
+        "A PAT token is required to register the Azure Artifact Repository",
+        "Enter your Azure PAT token",
+        "AzurePatToken",
+        $null
+    )
+} else {
+    $securePatToken = $PatToken | ConvertTo-SecureString -AsPlainText -Force
+    $credential = New-Object System.Management.Automation.PSCredential 'AzurePatToken', $securePatToken
+}
 
 $repoName = (Get-PSRepository -Verbose:$false | Where-Object { $_.SourceLocation -eq $Url }).Name
 
