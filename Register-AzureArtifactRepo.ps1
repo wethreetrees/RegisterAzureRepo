@@ -1,7 +1,7 @@
 
 <#PSScriptInfo
 
-.VERSION 1.0.2
+.VERSION 1.0.3
 
 .GUID 031b94ea-9b95-4886-afcc-fc59299c7747
 
@@ -27,6 +27,7 @@
 
 .RELEASENOTES
     2022-03-10 - initial release
+    2022-07-20 - improve package source registration and add PassThru param to return registered sources
 
 .PRIVATEDATA
 
@@ -69,7 +70,11 @@ Param(
 
     # Azure PAT token (must have package read permissions)
     [Parameter()]
-    [string]$PatToken
+    [string]$PatToken,
+
+    # Return the newly registered repository sources
+    [Parameter()]
+    [switch]$PassThru
 )
 
 if (-not $PatToken) {
@@ -84,7 +89,7 @@ if (-not $PatToken) {
     $credential = New-Object System.Management.Automation.PSCredential 'AzurePatToken', $securePatToken
 }
 
-$repoName = (Get-PSRepository -Verbose:$false | Where-Object { $_.SourceLocation -eq $Url }).Name
+$repoName = (Get-PSRepository | Where-Object { $_.SourceLocation -eq $Url }).Name
 
 if ($repoName) {
     if ($sourcesMatchingName = Get-PackageSource -Name $repoName) {
@@ -100,14 +105,15 @@ if ($repoName) {
 
 $psRepositoryParams = @{
     Name                 = $repoName
-    SourceLocation       = $Url
+    Location             = $Url
     ScriptSourceLocation = $Url
     PublishLocation      = $Url
-    InstallationPolicy   = 'Trusted'
+    Trusted              = $true
+    ProviderName         = 'PowerShellGet'
     Credential           = $Credential
 }
 
-Register-PSRepository @psRepositoryParams
+$sources = @(Register-PackageSource @psRepositoryParams)
 
 $pkgSourceParams = @{
     Name         = $repoName
@@ -117,4 +123,12 @@ $pkgSourceParams = @{
     Credential   = $Credential
 }
 
-$null = Register-PackageSource @pkgSourceParams
+try {
+    $sources += Register-PackageSource @pkgSourceParams -ErrorAction Stop
+} catch {
+    if (-not $_.Exception.Message -like "*Package Source '$repoName' exists*") {
+        throw $_
+    }
+}
+
+if ($PassThru) { return $sources }
