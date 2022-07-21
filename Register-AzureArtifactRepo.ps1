@@ -1,7 +1,7 @@
 
 <#PSScriptInfo
 
-.VERSION 1.0.3
+.VERSION 1.1.0
 
 .GUID 031b94ea-9b95-4886-afcc-fc59299c7747
 
@@ -28,6 +28,7 @@
 .RELEASENOTES
     2022-03-10 - initial release
     2022-07-20 - improve package source registration and add PassThru param to return registered sources
+    2022-07-20 - bump version to reflect new feature
 
 .PRIVATEDATA
 
